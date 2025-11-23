@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Abenteuer-Adventskalender Rätsel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      /* Warme, kinderbuchartige Farben */
+      --bg-paper: #fdf6e3;
+      --bg-paper-alt: #fbf0d9;
+      --ink: #43342a;
+      --ink-soft: #6b4d3a;
+      --accent-main: #d18445;
+      --accent-soft: #f2a65a;
+      --accent-light: #ffe0a3;
+      --accent-green: #6ba66a;
+      --accent-red: #e57373;
+      --border-soft: #e0c8a5;
+      --shadow-soft: 0 10px 20px rgba(120, 90, 50, 0.25);
+      --radius-l: 16px;
+      --radius-xl: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 0 0, #ffe9c5 0, transparent 55%),
+        radial-gradient(circle at 100% 0, #ffe3bf 0, transparent 55%),
+        linear-gradient(to bottom, #fffaf1 0, #f9eddc 45%, #f4e3cb 100%);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 12px 40px;
+    }
+
+    .forest-overlay {
+      /* Jetzt eher Papierstruktur / sanfte Hügel */
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.35;
+      background:
+        linear-gradient(
+          to top,
+          rgba(235, 210, 170, 0.7),
+          rgba(255, 247, 232, 0.5),
+          transparent 55%
+        ),
+        url("data:image/svg+xml,%3Csvg width='180' height='120' viewBox='0 0 180 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='0' y1='0' y2='1'%3E%3Cstop offset='0%' stop-color='%23ffe6c0' stop-opacity='0.7'/%3E%3Cstop offset='100%' stop-color='%23f6d9b2' stop-opacity='1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 90 Q 40 60 80 80 T 160 75 T 220 90 V120 H0 Z' fill='url(%23g)'/%3E%3Ccircle cx='25' cy='40' r='4' fill='%23f2b47b' opacity='0.7'/%3E%3Ccircle cx='80' cy='25' r='3' fill='%23f2b47b' opacity='0.4'/%3E%3Ccircle cx='140' cy='50' r='4' fill='%23f2b47b' opacity='0.6'/%3E%3C/svg%3E");
+      background-size: cover;
+      mix-blend-mode: multiply;
+      z-index: -1;
+    }
+
+    .wrapper {
+      max-width: 960px;
+      width: 100%;
+      background: rgba(255, 253, 245, 0.9);
+      border-radius: 28px;
+      border: 2px solid #f1ddc0;
+      padding: 20px 16px 24px;
+      box-shadow: 0 18px 30px rgba(145, 110, 70, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wrapper::before {
+      /* kleine „Papierknicke“ */
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.4) 0,
+          transparent 35%,
+          transparent 65%,
+          rgba(255, 255, 255, 0.4) 100%
+        );
+      opacity: 0.35;
+      pointer-events: none;
+      mix-blend-mode: soft-light;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header h1 {
+      font-size: clamp(1.9rem, 3vw, 2.4rem);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 0 0 6px;
+      color: var(--ink-soft);
+      text-shadow: 0 1px #fffdf6;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--ink-soft);
+    }
+
+    .tagline {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #8c6b4b;
+      font-style: italic;
+    }
+
+    .pill-row {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .pill {
+      border-radius: 9999px;
+      padding: 4px 10px;
+      border: 1px dashed #e5c49a;
+      background: #fff7e8;
+      color: #7b5a3b;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .notice {
+      margin: 18px auto 16px;
+      max-width: 640px;
+      background: #fff7ea;
+      border-radius: 9999px;
+      border: 1px solid #f0d2a8;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      color: #7b5a3b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .notice-emoji {
+      font-size: 1.1rem;
+    }
+
+    .notice strong {
+      color: var(--ink-soft);
+    }
+
+    .debug-toggle {
+      margin: 0 auto 18px;
+      max-width: 640px;
+      display: flex;
+      justify-content: flex-end;
+      font-size: 0.8rem;
+      color: #7b5a3b;
+      gap: 8px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .debug-toggle input {
+      accent-color: var(--accent-main);
+      transform: scale(1.05);
+    }
+
+    /* Index-Ansicht */
+    #indexView {
+      margin-top: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .index-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+    }
+
+    .day-card {
+      background: #fffaf0;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-soft);
+      padding: 14px 14px 16px;
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      justify-content: space-between;
+      transition:
+        transform 120ms ease,
+        box-shadow 120ms ease,
+        border-color 120ms ease,
+        background 120ms ease;
+    }
+
+    .day-card.unlocked:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 26px rgba(145, 110, 70, 0.25);
+      border-color: var(--accent-soft);
+      background: #fffaf2;
+    }
+
+    .day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .day-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--ink-soft);
+    }
+
+    .day-sub {
+      font-size: 0.75rem;
+      color: #89684a;
+    }
+
+    .status-pill {
+      font-size: 0.7rem;
+      padding: 3px 9px;
+      border-radius: 9999px;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+
+    .status-pill.unlocked {
+      border-color: #8dc48a;
+      color: #467544;
+      background: #f2ffe8;
+    }
+
+    .status-pill.locked {
+      border-color: #d8c3a6;
+      color: #a18662;
+      background: #f7ebde;
+    }
+
+    .day-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .day-info {
+      font-size: 0.75rem;
+      color: #8c6b4b;
+    }
+
+    .day-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 9999px;
+      text-decoration: none;
+      font-size: 0.8rem;
+      border: 1px solid #e0c2a1;
+      background: #fff3e0;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition:
+        background 120ms ease,
+        border-color 120ms ease,
+        transform 80ms ease,
+        box-shadow 120ms ease;
+      box-shadow: 0 3px 0 rgba(180, 139, 90, 0.4);
+    }
+
+    .day-link span.icon {
+      font-size: 0.95rem;
+    }
+
+    .day-link:hover {
+      border-color: var(--accent-main);
+      background: #ffe7c4;
+      transform: translateY(-1px);
+      box-shadow: 0 5px 0 rgba(180, 139, 90, 0.4);
+    }
+
+    .day-link:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 0 rgba(180, 139, 90, 0.5);
+    }
+
+    .day-link.locked {
+      opacity: 0.7;
+      cursor: default;
+      border-style: dashed;
+      box-shadow: none;
+    }
+
+    .day-link.locked:hover {
+      transform: none;
+      border-color: #e0c2a1;
+      background: #fff3e0;
+    }
+
+    /* Detail-Ansicht */
+    #detailView {
+      margin-top: 16px;
+      display: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    #detailView.active {
+      display: block;
+    }
+
+    #indexView.active {
+      display: block;
+    }
+
+    #indexView.hidden {
+      display: none;
+    }
+
+    .back-link {
+      margin-bottom: 10px;
+      font-size: 0.8rem;
+    }
+
+    .back-link a {
+      text-decoration: none;
+      color: var(--ink-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 9999px;
+      border: 1px solid #e2c5a2;
+      background: #fff3e4;
+      box-shadow: 0 2px 0 rgba(180, 139, 90, 0.4);
+    }
+
+    .back-link a:hover {
+      border-color: var(--accent-main);
+      background: #ffe4c3;
+    }
+
+    .detail-card {
+      background: #fffaf0;
+      border-radius: 30px;
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-soft);
+      padding: 18px 16px 20px;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .detail-header-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .detail-day-label {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-soft);
+    }
+
+    .detail-tag {
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: #8c6b4b;
+    }
+
+    .detail-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--ink-soft);
+      margin-top: 4px;
+    }
+
+    .detail-status {
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      border: 1px solid #e0c2a1;
+      color: #8c6b4b;
+      background: #fff3e4;
+    }
+
+    .detail-status.unlocked {
+      border-color: #8dc48a;
+      color: #467544;
+      background: #f2ffe8;
+    }
+
+    .detail-status.locked {
+      border-color: #d8c3a6;
+      color: #a18662;
+      background: #f7ebde;
+    }
+
+    .detail-body.locked {
+      text-align: center;
+      padding: 20px 0 8px;
+      color: #8c6b4b;
+      font-size: 0.9rem;
+    }
+
+    .detail-body.locked strong {
+      color: var(--ink-soft);
+    }
+
+    .detail-image-wrapper {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid #e2c3a4;
+      background: linear-gradient(to bottom, #fffaf0, #ffe9c8);
+      margin-bottom: 14px;
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .detail-image-wrapper img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 360px;
+      object-fit: cover;
+      filter: saturate(1.02) contrast(1.01);
+    }
+
+    .image-placeholder {
+      font-size: 0.85rem;
+      color: #8c6b4b;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .image-placeholder code {
+      font-size: 0.8rem;
+      background: #fff3e4;
+      padding: 2px 6px;
+      border-radius: 9999px;
+      border: 1px solid #e2c5a2;
+    }
+
+    .question {
+      font-size: 1rem;
+      margin: 4px 0 12px;
+      color: var(--ink-soft);
+    }
+
+    .question span {
+      color: var(--accent-main);
+      font-weight: 600;
+    }
+
+    .answers {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    @media (min-width: 720px) {
+      .answers {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .answer-btn {
+      width: 100%;
+      text-align: left;
+      font-size: 0.9rem;
+      padding: 8px 11px;
+      border-radius: 9999px;
+      border: 1px solid #e2c5a2;
+      background: #fffaf2;
+      color: var(--ink-soft);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition:
+        background 120ms ease,
+        transform 80ms ease,
+        box-shadow 120ms ease,
+        border-color 120ms ease,
+        color 120ms ease;
+      white-space: normal;
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      box-shadow: 0 3px 0 rgba(190, 150, 100, 0.4);
+    }
+
+    .answer-index {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      padding: 0 4px;
+    }
+
+    .answer-btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent-soft);
+      background: #ffeccd;
+      box-shadow: 0 5px 0 rgba(190, 150, 100, 0.45);
+    }
+
+    .answer-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 0 rgba(190, 150, 100, 0.5);
+    }
+
+    .answer-btn.correct {
+      border-color: #8dc48a;
+      background: #f2ffe8;
+      color: #355c33;
+    }
+
+    .answer-btn.wrong {
+      border-color: #e59a9a;
+      background: #ffe7e7;
+      color: #7b3030;
+    }
+
+    .answer-btn:disabled {
+      cursor: default;
+      opacity: 0.98;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      min-height: 1.1em;
+      color: #8c6b4b;
+    }
+
+    .feedback.success {
+      color: var(--accent-green);
+    }
+
+    .feedback.error {
+      color: var(--accent-red);
+    }
+
+    footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #8c6b4b;
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="forest-overlay"></div>
+  <div class="wrapper">
+    <header>
+      <h1>Abenteuer-Adventskalender</h1>
+      <p>Hinter jedem geraden Dezembertag versteckt sich ein Teil der Abenteuergeschichte.</p>
+      <p class="tagline">Bilder anschauen, Spur verfolgen, die richtige Antwort wählen.</p>
+
+      <div class="pill-row">
+        <div class="pill">
+          <span>📖</span>
+          <span>Eine fortlaufende Abenteuergeschichte im Wald</span>
+        </div>
+        <div class="pill">
+          <span>🎄</span>
+          <span>Rätsel an den Tagen <strong>2, 4, …, 24</strong></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="notice">
+      <span class="notice-emoji">✨</span>
+      <div>
+        <strong>Hinweis:</strong>
+        <span id="notice-text">
+          Die Rätsel werden automatisch freigeschaltet, sobald der entsprechende Dezembertag erreicht ist.
+        </span>
+      </div>
+    </div>
+
+    <div class="debug-toggle">
+      <label>
+        <input type="checkbox" id="debugToggle" />
+        Testmodus: alle Rätsel freischalten
+      </label>
+    </div>
+
+    <!-- Übersicht -->
+    <main id="indexView">
+      <div class="index-grid" id="indexGrid"></div>
+    </main>
+
+    <!-- Detailansicht eines Tages -->
+    <main id="detailView">
+      <div class="back-link">
+        <a href="index.html">
+          <span>←</span> Zur Übersicht
+        </a>
+      </div>
+      <article class="detail-card" id="detailCard">
+        <!-- Wird per JS befüllt -->
+      </article>
+    </main>
+
+    <footer>
+      <span>Zum Anpassen siehe das PUZZLES-Array im JavaScript-Bereich dieser Datei.</span>
+    </footer>
+  </div>
+
+  <script>
+    /*
+     * ================================
+     * KONFIGURATION FÜR DICH (ANPASSEN)
+     * ================================
+     *
+     * 1. Für jeden Rätseltag (2, 4, ..., 24) gibt es einen Eintrag im Array "PUZZLES".
+     * 2. Du musst pro Eintrag anpassen:
+     *    - img: Pfad zu deinem Bild
+     *    - question: Text des Rätsels (HTML erlaubt, z.B. <span>)
+     *    - answers: 11 Antworttexte (Array mit 11 Strings)
+     *    - correctIndex: Index (0–10) der richtigen Antwort im Array "answers"
+     */
+
+    const PUZZLES = [
+      {
+        day: 2,
+        img: "", // z.B.: "images/tag2.jpg"
+        question: "Platzhalter-Rätseltext für den <span>2. Dezember</span>.",
+        answers: [
+          "Antwort 1 für Tag 2",
+          "Antwort 2 für Tag 2",
+          "Antwort 3 für Tag 2",
+          "Antwort 4 für Tag 2",
+          "Antwort 5 für Tag 2",
+          "Antwort 6 für Tag 2",
+          "Antwort 7 für Tag 2",
+          "Antwort 8 für Tag 2",
+          "Antwort 9 für Tag 2",
+          "Antwort 10 für Tag 2",
+          "Antwort 11 für Tag 2"
+        ],
+        correctIndex: 0
+      },
+      {
+        day: 4,
+        img: "",
+        question: "Platzhalter-Rätseltext für den <span>4. Dezember</span>.",
+        answers: [
+          "Antwort 1 für Tag 4",
+          "Antwort 2 für Tag 4",
+          "Antwort 3 für Tag 4",
+          "Antwort 4 für Tag 4",
+          "Antwort 5 für Tag 4",
+          "Antwort 6 für Tag 4",
+          "Antwort 7 für Tag 4",
+          "Antwort 8 für Tag 4",
+          "Antwort 9 für Tag 4",
+          "Antwort 10 für Tag 4",
+          "Antwort 11 für Tag 4"
+        ],
+        correctIndex: 1
+      },
+      {
+        day: 6,
+        img: "",
+        question: "Platzhalter-Rätseltext für den <span>6. Dezember</span>.",
+        answers: [
+          "Antwort 1 für Tag 6",
+          "Antwort 2 für Tag 6",
+          "Antwort 3 für Tag 6",
+          "Antwort 4 für Tag 6",
+          "Antwort 5 für Tag 6",
+          "Antwort 6 für Tag 6",
+          "Antwort 7 für Tag 6",
+          "Antwort 8 für Tag 6",
+          "Antwort 9 für Tag 6",
+          "Antwort 10 für Tag 6",
+          "Antwort 11 für Tag 6"
+        ],
+        correctIndex: 2
+      },
+      {
+        day: 8,
+        img: "",
+        question: "Platzhalter-Rätseltext für den <span>8. Dezember</span>.",
+        answers: [
+          "Antwort 1 für Tag 8",
+          "Antwort 2 für Tag 8",
+          "Antwort 3 für Tag 8",
+          "Antwort 4 für Tag 8",
+          "Antwort 5 für Tag 8",
+          "Antwort 6 für Tag 8",
+          "Antwort 7 für Tag 8",
+          "Antwort 8 für Tag 8",
+          "Antwort 9 für Tag 8",
+          "Antwort 10 für Tag 8",
+          "Antwort 11 für Tag 8"
+        ],
+        correctIndex: 3
+      },
+      {
+        day: 10,
+        img: "",
+        question: "Platzhalter-Rätseltext für den <span>10. Dezember</span>.",
+        answers: [
+          "Antwort 1 für Tag 10",
+          "Antwort 2 für Tag 10",
+          "Antwort 3 für Tag 10",
+          "Antwort 4 für Tag 10",
+          "Antwort 5 für Tag 10",
+          "Antwort 6 für Tag 10",
+          "Antwort 7 für Tag 10",
+          "Antwort 8 für Tag 10",
+          "Antwort 9 für Tag 10",
+          "Antwort 10 für Tag 10",
+          "Antwort 11 für Tag 10"
+        ],
+        correctIndex: 4
+      },
+      {
+        day: 12,
+        img: "",
+        question: "Platzhalter-Rätseltext für den <span>12. Dezember</span>.",
+        answers: [
+          "Antwort 1 für Tag 12",
+          "Antwort 2 für Tag 12",
+          "Antwort 3 für Tag 12",
+          "Antwort 4 für Tag 12",
+          "Antwort 5 für Tag 12",
+          "Antwort 6 für Tag 12",
+          "Antwort 7 für Tag 12",
+          "Antwort 8 für Tag 12",
+          "Antwort 9 für Tag 12",
+          "Antwort 10 für Tag 12",
+          "Antwort 11 für Tag 12"
+        ],
+        correctIndex: 5
+      },
+      {
+        day: 14,
+        img: "",
+        question: "Platzhalter-Rätseltext für den <span>14. Dezember</span>.",
+        answers: [
+          "Antwort 1 für Tag 14",
+          "Antwort 2 für Tag 14",
+          "Antwort 3 für Tag 14",
+          "Antwort 4 für Tag 14",
+          "Antwort 5 für Tag 14",
+          "Antwort 6 für Tag 14",
+          "Antwort 7 für Tag 14",
+          "Antwort 8 für Tag 14",
+          "Antwort 9 für Tag 14",
+          "Antwort 10 für Tag 14",
+          "Antwort 11 für Tag 14"
+        ],
+        correctIndex: 6
+      },
+      {
+        day: 16,
+        img: "",
+        question: "Platzhalter-Rätseltext für den <span>16. Dezember</span>.",
+        answers: [
+          "Antwort 1 für Tag 16",
+          "Antwort 2 für Tag 16",
+          "Antwort 3 für Tag 16",
+          "Antwort 4 für Tag 16",
+          "Antwort 5 für Tag 16",
+          "Antwort 6 für Tag 16",
+          "Antwort 7 für Tag 16",
+          "Antwort 8 für Tag 16",
+          "Antwort 9 für Tag 16",
+          "Antwort 10 für Tag 16",
+          "Antwort 11 für Tag 16"
+        ],
+        correctIndex: 7
+      },
+      {
+        day: 18,
+        img: "",
+        question: "Platzhalter-Rätseltext für den <span>18. Dezember</span>.",
+        answers: [
+          "Antwort 1 für Tag 18",
+          "Antwort 2 für Tag 18",
+          "Antwort 3 für Tag 18",
+          "Antwort 4 für Tag 18",
+          "Antwort 5 für Tag 18",
+          "Antwort 6 für Tag 18",
+          "Antwort 7 für Tag 18",
+          "Antwort 8 für Tag 18",
+          "Antwort 9 für Tag 18",
+          "Antwort 10 für Tag 18",
+          "Antwort 11 für Tag 18"
+        ],
+        correctIndex: 8
+      },
+      {
+        day: 20,
+        img: "",
+        question: "Platzhalter-Rätseltext für den <span>20. Dezember</span>.",
+        answers: [
+          "Antwort 1 für Tag 20",
+          "Antwort 2 für Tag 20",
+          "Antwort 3 für Tag 20",
+          "Antwort 4 für Tag 20",
+          "Antwort 5 für Tag 20",
+          "Antwort 6 für Tag 20",
+          "Antwort 7 für Tag 20",
+          "Antwort 8 für Tag 20",
+          "Antwort 9 für Tag 20",
+          "Antwort 10 für Tag 20",
+          "Antwort 11 für Tag 20"
+        ],
+        correctIndex: 9
+      },
+      {
+        day: 22,
+        img: "",
+        question: "Platzhalter-Rätseltext für den <span>22. Dezember</span>.",
+        answers: [
+          "Antwort 1 für Tag 22",
+          "Antwort 2 für Tag 22",
+          "Antwort 3 für Tag 22",
+          "Antwort 4 für Tag 22",
+          "Antwort 5 für Tag 22",
+          "Antwort 6 für Tag 22",
+          "Antwort 7 für Tag 22",
+          "Antwort 8 für Tag 22",
+          "Antwort 9 für Tag 22",
+          "Antwort 10 für Tag 22",
+          "Antwort 11 für Tag 22"
+        ],
+        correctIndex: 10
+      },
+      {
+        day: 24,
+        img: "",
+        question: "Platzhalter-Rätseltext für den <span>24. Dezember</span>.",
+        answers: [
+          "Antwort 1 für Tag 24",
+          "Antwort 2 für Tag 24",
+          "Antwort 3 für Tag 24",
+          "Antwort 4 für Tag 24",
+          "Antwort 5 für Tag 24",
+          "Antwort 6 für Tag 24",
+          "Antwort 7 für Tag 24",
+          "Antwort 8 für Tag 24",
+          "Antwort 9 für Tag 24",
+          "Antwort 10 für Tag 24",
+          "Antwort 11 für Tag 24"
+        ],
+        correctIndex: 0
+      }
+    ];
+
+    // ================================
+    // AB HIER LÄUFT ALLES AUTOMATISCH
+    // ================================
+
+    let debugUnlockAll = false;
+
+    function isPuzzleUnlocked(day) {
+      if (debugUnlockAll) return true;
+
+      const now = new Date();
+      const currentMonth = now.getMonth(); // 0 = Jan, 11 = Dez
+      const currentDay = now.getDate();
+
+      if (currentMonth !== 11) return false;
+      return currentDay >= day;
+    }
+
+    function getNextUnlockDay() {
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentDay = now.getDate();
+
+      if (currentMonth !== 11) {
+        return 2;
+      }
+
+      const remainingDays = PUZZLES
+        .map((p) => p.day)
+        .filter((d) => d > currentDay)
+        .sort((a, b) => a - b);
+
+      return remainingDays.length > 0 ? remainingDays[0] : null;
+    }
+
+    function updateNotice() {
+      const noticeTextEl = document.getElementById("notice-text");
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentDay = now.getDate();
+
+      if (debugUnlockAll) {
+        noticeTextEl.textContent =
+          "Testmodus aktiv: Alle Rätsel sind freigeschaltet, unabhängig vom Datum.";
+        return;
+      }
+
+      if (currentMonth !== 11) {
+        noticeTextEl.textContent =
+          "Die Rätsel zur Abenteuergeschichte werden ab dem 2. Dezember an jedem geraden Tag freigeschaltet.";
+        return;
+      }
+
+      const nextDay = getNextUnlockDay();
+      if (nextDay === null) {
+        noticeTextEl.textContent =
+          "Alle Rätsel bis zum 24. Dezember wurden bereits freigeschaltet.";
+        return;
+      }
+
+      if (currentDay < 2) {
+        noticeTextEl.textContent =
+          "Das erste Kapitel-Rätsel wird am 2. Dezember freigeschaltet.";
+        return;
+      }
+
+      noticeTextEl.textContent =
+        "Das nächste Kapitel öffnet sich am " + nextDay + ". Dezember.";
+    }
+
+    function createIndexView() {
+      const indexGrid = document.getElementById("indexGrid");
+      indexGrid.innerHTML = "";
+
+      const puzzlesSorted = [...PUZZLES].sort((a, b) => a.day - b.day);
+
+      puzzlesSorted.forEach((puzzle, idx) => {
+        const unlocked = isPuzzleUnlocked(puzzle.day);
+
+        const card = document.createElement("article");
+        card.className = "day-card " + (unlocked ? "unlocked" : "locked");
+
+        const header = document.createElement("div");
+        header.className = "day-header";
+
+        const left = document.createElement("div");
+        const label = document.createElement("div");
+        label.className = "day-label";
+        label.textContent = puzzle.day + ". Dezember";
+        const sub = document.createElement("div");
+        sub.className = "day-sub";
+        sub.textContent =
+          "Kapitel " + (idx + 1) + " von " + PUZZLES.length;
+
+        left.appendChild(label);
+        left.appendChild(sub);
+
+        const status = document.createElement("div");
+        status.className =
+          "status-pill " + (unlocked ? "unlocked" : "locked");
+        status.textContent = unlocked ? "Freigeschaltet ✨" : "Noch zu."
+
+        header.appendChild(left);
+        header.appendChild(status);
+        card.appendChild(header);
+
+        const info = document.createElement("div");
+        info.className = "day-info";
+        info.textContent = "Bilderbuch-Abenteuer im Wald, mit einem Rätsel am Ende.";
+        card.appendChild(info);
+
+        const footer = document.createElement("div");
+        footer.className = "day-card-footer";
+
+        const hint = document.createElement("div");
+        hint.className = "day-info";
+        hint.textContent = unlocked
+          ? "Bereit für das Kapitel-Rätsel."
+          : "Öffnet sich am " + puzzle.day + ". Dezember.";
+
+        const link = document.createElement("a");
+        link.href = "index.html?day=" + puzzle.day;
+        link.className = "day-link" + (unlocked ? "" : " locked");
+        link.innerHTML =
+          "<span class='icon'>→</span><span>Zum Rätsel</span>";
+
+        if (!unlocked) {
+          link.addEventListener("click", (e) => {
+            if (!debugUnlockAll) {
+              e.preventDefault();
+            }
+          });
+        }
+
+        footer.appendChild(hint);
+        footer.appendChild(link);
+
+        card.appendChild(footer);
+        indexGrid.appendChild(card);
+      });
+    }
+
+    function createAnswerButton(answerText, index) {
+      const li = document.createElement("li");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "answer-btn";
+      button.dataset.index = index;
+
+      const indexSpan = document.createElement("span");
+      indexSpan.className = "answer-index";
+      indexSpan.textContent = String(index + 1) + ".";
+
+      const textSpan = document.createElement("span");
+      textSpan.textContent = answerText;
+
+      button.appendChild(indexSpan);
+      button.appendChild(textSpan);
+
+      li.appendChild(button);
+      return { li, button };
+    }
+
+    function showIndexView() {
+      const indexView = document.getElementById("indexView");
+      const detailView = document.getElementById("detailView");
+
+      indexView.classList.add("active");
+      indexView.classList.remove("hidden");
+      detailView.classList.remove("active");
+      detailView.style.display = "none";
+
+      createIndexView();
+    }
+
+    function showDetailView(day) {
+      const indexView = document.getElementById("indexView");
+      const detailView = document.getElementById("detailView");
+      const detailCard = document.getElementById("detailCard");
+
+      const puzzle = PUZZLES.find((p) => p.day === day);
+      if (!puzzle) {
+        showIndexView();
+        return;
+      }
+
+      const unlocked = isPuzzleUnlocked(day);
+
+      indexView.classList.remove("active");
+      indexView.classList.add("hidden");
+      detailView.classList.add("active");
+      detailView.style.display = "block";
+
+      detailCard.innerHTML = "";
+
+      const headerRow = document.createElement("div");
+      headerRow.className = "detail-header-row";
+
+      const left = document.createElement("div");
+      const dayLabel = document.createElement("div");
+      dayLabel.className = "detail-day-label";
+      dayLabel.textContent = day + ". Dezember";
+      const tag = document.createElement("div");
+      tag.className = "detail-tag";
+      tag.textContent = "Kapitel der Abenteuergeschichte";
+
+      left.appendChild(dayLabel);
+      left.appendChild(tag);
+
+      const right = document.createElement("div");
+      right.className = "detail-status " + (unlocked ? "unlocked" : "locked");
+      right.textContent = unlocked
+        ? "Freigeschaltet ✨"
+        : "Noch zu.";
+
+      headerRow.appendChild(left);
+      headerRow.appendChild(right);
+
+      detailCard.appendChild(headerRow);
+
+      const title = document.createElement("div");
+      title.className = "detail-title";
+      title.textContent = "Schau dir das Bild an und finde die richtige Spur.";
+      detailCard.appendChild(title);
+
+      if (!unlocked) {
+        const bodyLocked = document.createElement("div");
+        bodyLocked.className = "detail-body locked";
+        bodyLocked.innerHTML =
+          "<p><strong>Dieses Kapitel ist noch geschlossen.</strong></p>" +
+          "<p>Es öffnet sich am " +
+          day +
+          ". Dezember. Bis dahin kannst du andere freigeschaltete Kapitel spielen.</p>";
+        detailCard.appendChild(bodyLocked);
+        return;
+      }
+
+      const imageWrapper = document.createElement("div");
+      imageWrapper.className = "detail-image-wrapper";
+
+      if (puzzle.img && puzzle.img.trim().length > 0) {
+        const img = document.createElement("img");
+        img.src = puzzle.img;
+        img.alt = "Rätselbild für den " + day + ". Dezember";
+        imageWrapper.appendChild(img);
+      } else {
+        const placeholder = document.createElement("div");
+        placeholder.className = "image-placeholder";
+        placeholder.innerHTML =
+          "Hier später ein Bild für den " +
+          day +
+          ". Dezember einfügen.<br>" +
+          "<code>img: \"pfad/zum/bild.jpg\"</code>";
+        imageWrapper.appendChild(placeholder);
+      }
+
+      detailCard.appendChild(imageWrapper);
+
+      if (!Array.isArray(puzzle.answers) || puzzle.answers.length !== 11) {
+        console.warn(
+          "Achtung: Puzzle am Tag " +
+            puzzle.day +
+            " hat nicht genau 11 Antworten. Aktuelle Länge:",
+          puzzle.answers ? puzzle.answers.length : "keine Antworten"
+        );
+      }
+
+      const questionEl = document.createElement("p");
+      questionEl.className = "question";
+      questionEl.innerHTML = puzzle.question;
+      detailCard.appendChild(questionEl);
+
+      const answersList = document.createElement("ul");
+      answersList.className = "answers";
+
+      const answerButtons = [];
+      puzzle.answers.forEach((answerText, index) => {
+        const { li, button } = createAnswerButton(answerText, index);
+        answersList.appendChild(li);
+        answerButtons.push(button);
+      });
+
+      detailCard.appendChild(answersList);
+
+      const feedback = document.createElement("div");
+      feedback.className = "feedback";
+      detailCard.appendChild(feedback);
+
+      answerButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const index = Number(button.dataset.index);
+          handleAnswerClick(detailCard, puzzle, index, button);
+        });
+      });
+    }
+
+    function handleAnswerClick(card, puzzle, selectedIndex, clickedButton) {
+      const feedback = card.querySelector(".feedback");
+      const buttons = card.querySelectorAll(".answer-btn");
+
+      if (feedback.dataset.answered === "true") {
+        return;
+      }
+      feedback.dataset.answered = "true";
+
+      buttons.forEach((btn) => {
+        btn.disabled = true;
+      });
+
+      if (selectedIndex === puzzle.correctIndex) {
+        clickedButton.classList.add("correct");
+        feedback.textContent =
+          "Richtig! Die Abenteurer folgen der richtigen Spur weiter. 🎉";
+        feedback.classList.remove("error");
+        feedback.classList.add("success");
+      } else {
+        clickedButton.classList.add("wrong");
+        const correctButton = buttons[puzzle.correctIndex];
+        if (correctButton) {
+          correctButton.classList.add("correct");
+        }
+        feedback.textContent =
+          "Fast! Die richtige Antwort ist jetzt grün markiert.";
+        feedback.classList.remove("success");
+        feedback.classList.add("error");
+      }
+    }
+
+    function initDebugToggle() {
+      const toggle = document.getElementById("debugToggle");
+      toggle.addEventListener("change", () => {
+        debugUnlockAll = toggle.checked;
+        updateNotice();
+
+        const params = new URLSearchParams(window.location.search);
+        const dayParam = params.get("day");
+        const dayNumber = parseInt(dayParam, 10);
+
+        if (!isNaN(dayNumber)) {
+          showDetailView(dayNumber);
+        } else {
+          showIndexView();
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initDebugToggle();
+      updateNotice();
+
+      const params = new URLSearchParams(window.location.search);
+      const dayParam = params.get("day");
+      const dayNumber = parseInt(dayParam, 10);
+
+      if (!isNaN(dayNumber)) {
+        showDetailView(dayNumber);
+      } else {
+        showIndexView();
+      }
+    });
+  </script>
+</body>
+</html>
