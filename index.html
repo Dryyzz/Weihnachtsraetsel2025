@@ -43,7 +43,7 @@
     }
 
     .forest-overlay {
-      /* Jetzt eher Papierstruktur / sanfte Hügel */
+      /* Papier / sanfte Hügel */
       position: fixed;
       inset: 0;
       pointer-events: none;
@@ -92,7 +92,7 @@
 
     header {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       position: relative;
       z-index: 1;
     }
@@ -140,7 +140,7 @@
     }
 
     .notice {
-      margin: 18px auto 16px;
+      margin: 12px auto 10px;
       max-width: 640px;
       background: #fff7ea;
       border-radius: 9999px;
@@ -161,6 +161,68 @@
 
     .notice strong {
       color: var(--ink-soft);
+    }
+
+    /* Statistik-Panel */
+    .stats-panel {
+      margin: 8px auto 12px;
+      max-width: 640px;
+      background: #fffaf0;
+      border-radius: 9999px;
+      border: 1px solid #e6c9a6;
+      padding: 7px 12px;
+      font-size: 0.85rem;
+      color: #7b5a3b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stats-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stats-title {
+      font-weight: 600;
+      color: var(--ink-soft);
+    }
+
+    .stats-values {
+      font-size: 0.8rem;
+    }
+
+    .stats-reset {
+      font-size: 0.75rem;
+      border-radius: 9999px;
+      border: 1px solid #e0b6a1;
+      background: #ffe8df;
+      color: #7b4b3b;
+      padding: 4px 9px;
+      cursor: pointer;
+      box-shadow: 0 2px 0 rgba(177, 117, 90, 0.4);
+      transition:
+        background 120ms ease,
+        border-color 120ms ease,
+        transform 80ms ease,
+        box-shadow 120ms ease;
+      white-space: nowrap;
+    }
+
+    .stats-reset:hover {
+      background: #ffd8cc;
+      border-color: #d28a6d;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 0 rgba(177, 117, 90, 0.4);
+    }
+
+    .stats-reset:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 0 rgba(177, 117, 90, 0.5);
     }
 
     .debug-toggle {
@@ -450,9 +512,8 @@
       display: block;
       width: 100%;
       height: auto;
-      max-height: 360px;
-      object-fit: cover;
-      filter: saturate(1.02) contrast(1.01);
+      max-height: none;
+      object-fit: contain;
     }
 
     .image-placeholder {
@@ -571,6 +632,14 @@
       color: var(--accent-red);
     }
 
+    .day-stats {
+      margin-top: 6px;
+      font-size: 0.8rem;
+      color: #8c6b4b;
+      border-top: 1px dashed #e0c8a5;
+      padding-top: 6px;
+    }
+
     footer {
       margin-top: 24px;
       text-align: center;
@@ -585,30 +654,31 @@
   <div class="forest-overlay"></div>
   <div class="wrapper">
     <header>
-      <h1>Abenteuer-Adventskalender</h1>
-      <p>Hinter jedem geraden Dezembertag versteckt sich ein Teil der Abenteuergeschichte.</p>
-      <p class="tagline">Bilder anschauen, Spur verfolgen, die richtige Antwort wählen.</p>
-
-      <div class="pill-row">
-        <div class="pill">
-          <span>📖</span>
-          <span>Eine fortlaufende Abenteuergeschichte im Wald</span>
-        </div>
-        <div class="pill">
-          <span>🎄</span>
-          <span>Rätsel an den Tagen <strong>2, 4, …, 24</strong></span>
-        </div>
-      </div>
-    </header>
+      <h1>Grunther's Advent</h1>
+      <p>Hinter jedem geraden Dezembertag versteckt sich ein Rätsel zu Grunther's Abenteuern.</p>
+      <p class="tagline">Schau dir die Bilder an und wähle die richtige Antwort.</p>
 
     <div class="notice">
       <span class="notice-emoji">✨</span>
       <div>
         <strong>Hinweis:</strong>
         <span id="notice-text">
-          Die Rätsel werden automatisch freigeschaltet, sobald der entsprechende Dezembertag erreicht ist.
+          Alle deine Antworten werden gespeichert und du kannst dir in deiner Statistik anschauen wie fit dein Grunther Wissen ist :)
         </span>
       </div>
+    </div>
+
+    <!-- Statistik-Panel -->
+    <div class="stats-panel">
+      <div class="stats-main">
+        <span class="stats-title">Deine Abenteuer-Statistik</span>
+        <span class="stats-values" id="globalStatsText">
+          Noch keine Antworten abgegeben.
+        </span>
+      </div>
+      <button class="stats-reset" id="resetStatsBtn" type="button">
+        Statistik zurücksetzen
+      </button>
     </div>
 
     <div class="debug-toggle">
@@ -635,9 +705,6 @@
       </article>
     </main>
 
-    <footer>
-      <span>Zum Anpassen siehe das PUZZLES-Array im JavaScript-Bereich dieser Datei.</span>
-    </footer>
   </div>
 
   <script>
@@ -657,238 +724,375 @@
     const PUZZLES = [
       {
         day: 2,
-        img: "", // z.B.: "images/tag2.jpg"
-        question: "Platzhalter-Rätseltext für den <span>2. Dezember</span>.",
+        img: "images/5.png",
+        question: "Zu welchem Kapitel passt das Bild vom <span>2. Dezember</span>?",
         answers: [
-          "Antwort 1 für Tag 2",
-          "Antwort 2 für Tag 2",
-          "Antwort 3 für Tag 2",
-          "Antwort 4 für Tag 2",
-          "Antwort 5 für Tag 2",
-          "Antwort 6 für Tag 2",
-          "Antwort 7 für Tag 2",
-          "Antwort 8 für Tag 2",
-          "Antwort 9 für Tag 2",
-          "Antwort 10 für Tag 2",
-          "Antwort 11 für Tag 2"
-        ],
-        correctIndex: 0
-      },
-      {
-        day: 4,
-        img: "",
-        question: "Platzhalter-Rätseltext für den <span>4. Dezember</span>.",
-        answers: [
-          "Antwort 1 für Tag 4",
-          "Antwort 2 für Tag 4",
-          "Antwort 3 für Tag 4",
-          "Antwort 4 für Tag 4",
-          "Antwort 5 für Tag 4",
-          "Antwort 6 für Tag 4",
-          "Antwort 7 für Tag 4",
-          "Antwort 8 für Tag 4",
-          "Antwort 9 für Tag 4",
-          "Antwort 10 für Tag 4",
-          "Antwort 11 für Tag 4"
-        ],
-        correctIndex: 1
-      },
-      {
-        day: 6,
-        img: "",
-        question: "Platzhalter-Rätseltext für den <span>6. Dezember</span>.",
-        answers: [
-          "Antwort 1 für Tag 6",
-          "Antwort 2 für Tag 6",
-          "Antwort 3 für Tag 6",
-          "Antwort 4 für Tag 6",
-          "Antwort 5 für Tag 6",
-          "Antwort 6 für Tag 6",
-          "Antwort 7 für Tag 6",
-          "Antwort 8 für Tag 6",
-          "Antwort 9 für Tag 6",
-          "Antwort 10 für Tag 6",
-          "Antwort 11 für Tag 6"
-        ],
-        correctIndex: 2
-      },
-      {
-        day: 8,
-        img: "",
-        question: "Platzhalter-Rätseltext für den <span>8. Dezember</span>.",
-        answers: [
-          "Antwort 1 für Tag 8",
-          "Antwort 2 für Tag 8",
-          "Antwort 3 für Tag 8",
-          "Antwort 4 für Tag 8",
-          "Antwort 5 für Tag 8",
-          "Antwort 6 für Tag 8",
-          "Antwort 7 für Tag 8",
-          "Antwort 8 für Tag 8",
-          "Antwort 9 für Tag 8",
-          "Antwort 10 für Tag 8",
-          "Antwort 11 für Tag 8"
-        ],
-        correctIndex: 3
-      },
-      {
-        day: 10,
-        img: "",
-        question: "Platzhalter-Rätseltext für den <span>10. Dezember</span>.",
-        answers: [
-          "Antwort 1 für Tag 10",
-          "Antwort 2 für Tag 10",
-          "Antwort 3 für Tag 10",
-          "Antwort 4 für Tag 10",
-          "Antwort 5 für Tag 10",
-          "Antwort 6 für Tag 10",
-          "Antwort 7 für Tag 10",
-          "Antwort 8 für Tag 10",
-          "Antwort 9 für Tag 10",
-          "Antwort 10 für Tag 10",
-          "Antwort 11 für Tag 10"
+          "Kapitel 1: Wie Alles Begann",
+          "Kapitel 2: Aufbruch ins Abenteuer",
+          "Kapitel 3: Flucht vom Kuschelbär",
+          "Kapitel 4: Herz des Waldes",
+          "Kapitel 5: Eine Borstige Bedrohung",
+          "Kapitel 6: Wer Rastet der Rostet",
+          "Kapitel 7: Trüffeljagd",
+          "Kapitel 8: Markttag",
+          "Kapitel 9: Ausrüstung macht Abenteurer",
+          "Kapitel 10: Herz des Nebels",
+          "Kapitel 11: Vertrauter des Waldes",
+          "Kapitel 12: Dem Wald geht’s gut, alles gut"
         ],
         correctIndex: 4
       },
       {
-        day: 12,
-        img: "",
-        question: "Platzhalter-Rätseltext für den <span>12. Dezember</span>.",
+        day: 4,
+        img: "images/8.png",
+        question: "Zu welchem Kapitel passt das Bild vom <span>4. Dezember</span>?",
         answers: [
-          "Antwort 1 für Tag 12",
-          "Antwort 2 für Tag 12",
-          "Antwort 3 für Tag 12",
-          "Antwort 4 für Tag 12",
-          "Antwort 5 für Tag 12",
-          "Antwort 6 für Tag 12",
-          "Antwort 7 für Tag 12",
-          "Antwort 8 für Tag 12",
-          "Antwort 9 für Tag 12",
-          "Antwort 10 für Tag 12",
-          "Antwort 11 für Tag 12"
-        ],
-        correctIndex: 5
-      },
-      {
-        day: 14,
-        img: "",
-        question: "Platzhalter-Rätseltext für den <span>14. Dezember</span>.",
-        answers: [
-          "Antwort 1 für Tag 14",
-          "Antwort 2 für Tag 14",
-          "Antwort 3 für Tag 14",
-          "Antwort 4 für Tag 14",
-          "Antwort 5 für Tag 14",
-          "Antwort 6 für Tag 14",
-          "Antwort 7 für Tag 14",
-          "Antwort 8 für Tag 14",
-          "Antwort 9 für Tag 14",
-          "Antwort 10 für Tag 14",
-          "Antwort 11 für Tag 14"
-        ],
-        correctIndex: 6
-      },
-      {
-        day: 16,
-        img: "",
-        question: "Platzhalter-Rätseltext für den <span>16. Dezember</span>.",
-        answers: [
-          "Antwort 1 für Tag 16",
-          "Antwort 2 für Tag 16",
-          "Antwort 3 für Tag 16",
-          "Antwort 4 für Tag 16",
-          "Antwort 5 für Tag 16",
-          "Antwort 6 für Tag 16",
-          "Antwort 7 für Tag 16",
-          "Antwort 8 für Tag 16",
-          "Antwort 9 für Tag 16",
-          "Antwort 10 für Tag 16",
-          "Antwort 11 für Tag 16"
+          "Kapitel 1: Wie Alles Begann",
+          "Kapitel 2: Aufbruch ins Abenteuer",
+          "Kapitel 3: Flucht vom Kuschelbär",
+          "Kapitel 4: Herz des Waldes",
+          "Kapitel 5: Eine Borstige Bedrohung",
+          "Kapitel 6: Wer Rastet der Rostet",
+          "Kapitel 7: Trüffeljagd",
+          "Kapitel 8: Markttag",
+          "Kapitel 9: Ausrüstung macht Abenteurer",
+          "Kapitel 10: Herz des Nebels",
+          "Kapitel 11: Vertrauter des Waldes",
+          "Kapitel 12: Dem Wald geht’s gut, alles gut"
         ],
         correctIndex: 7
       },
       {
-        day: 18,
-        img: "",
-        question: "Platzhalter-Rätseltext für den <span>18. Dezember</span>.",
+        day: 6,
+        img: "images/2.png",
+        question: "Zu welchem Kapitel passt das Bild vom <span>6. Dezember</span>?",
         answers: [
-          "Antwort 1 für Tag 18",
-          "Antwort 2 für Tag 18",
-          "Antwort 3 für Tag 18",
-          "Antwort 4 für Tag 18",
-          "Antwort 5 für Tag 18",
-          "Antwort 6 für Tag 18",
-          "Antwort 7 für Tag 18",
-          "Antwort 8 für Tag 18",
-          "Antwort 9 für Tag 18",
-          "Antwort 10 für Tag 18",
-          "Antwort 11 für Tag 18"
+          "Kapitel 1: Wie Alles Begann",
+          "Kapitel 2: Aufbruch ins Abenteuer",
+          "Kapitel 3: Flucht vom Kuschelbär",
+          "Kapitel 4: Herz des Waldes",
+          "Kapitel 5: Eine Borstige Bedrohung",
+          "Kapitel 6: Wer Rastet der Rostet",
+          "Kapitel 7: Trüffeljagd",
+          "Kapitel 8: Markttag",
+          "Kapitel 9: Ausrüstung macht Abenteurer",
+          "Kapitel 10: Herz des Nebels",
+          "Kapitel 11: Vertrauter des Waldes",
+          "Kapitel 12: Dem Wald geht’s gut, alles gut"
+        ],
+        correctIndex: 1
+      },
+      {
+        day: 8,
+        img: "images/9.png",
+        question: "Zu welchem Kapitel passt das Bild vom <span>8. Dezember</span>?",
+        answers: [
+          "Kapitel 1: Wie Alles Begann",
+          "Kapitel 2: Aufbruch ins Abenteuer",
+          "Kapitel 3: Flucht vom Kuschelbär",
+          "Kapitel 4: Herz des Waldes",
+          "Kapitel 5: Eine Borstige Bedrohung",
+          "Kapitel 6: Wer Rastet der Rostet",
+          "Kapitel 7: Trüffeljagd",
+          "Kapitel 8: Markttag",
+          "Kapitel 9: Ausrüstung macht Abenteurer",
+          "Kapitel 10: Herz des Nebels",
+          "Kapitel 11: Vertrauter des Waldes",
+          "Kapitel 12: Dem Wald geht’s gut, alles gut"
         ],
         correctIndex: 8
       },
       {
-        day: 20,
-        img: "",
-        question: "Platzhalter-Rätseltext für den <span>20. Dezember</span>.",
+        day: 10,
+        img: "images/1.png",
+        question: "Zu welchem Kapitel passt das Bild vom <span>10. Dezember</span>?",
         answers: [
-          "Antwort 1 für Tag 20",
-          "Antwort 2 für Tag 20",
-          "Antwort 3 für Tag 20",
-          "Antwort 4 für Tag 20",
-          "Antwort 5 für Tag 20",
-          "Antwort 6 für Tag 20",
-          "Antwort 7 für Tag 20",
-          "Antwort 8 für Tag 20",
-          "Antwort 9 für Tag 20",
-          "Antwort 10 für Tag 20",
-          "Antwort 11 für Tag 20"
-        ],
-        correctIndex: 9
-      },
-      {
-        day: 22,
-        img: "",
-        question: "Platzhalter-Rätseltext für den <span>22. Dezember</span>.",
-        answers: [
-          "Antwort 1 für Tag 22",
-          "Antwort 2 für Tag 22",
-          "Antwort 3 für Tag 22",
-          "Antwort 4 für Tag 22",
-          "Antwort 5 für Tag 22",
-          "Antwort 6 für Tag 22",
-          "Antwort 7 für Tag 22",
-          "Antwort 8 für Tag 22",
-          "Antwort 9 für Tag 22",
-          "Antwort 10 für Tag 22",
-          "Antwort 11 für Tag 22"
+          "Kapitel 1: Wie Alles Begann",
+          "Kapitel 2: Aufbruch ins Abenteuer",
+          "Kapitel 3: Flucht vom Kuschelbär",
+          "Kapitel 4: Herz des Waldes",
+          "Kapitel 5: Eine Borstige Bedrohung",
+          "Kapitel 6: Wer Rastet der Rostet",
+          "Kapitel 7: Trüffeljagd",
+          "Kapitel 8: Markttag",
+          "Kapitel 9: Ausrüstung macht Abenteurer",
+          "Kapitel 10: Herz des Nebels",
+          "Kapitel 11: Vertrauter des Waldes",
+          "Kapitel 12: Dem Wald geht’s gut, alles gut"
         ],
         correctIndex: 10
       },
       {
-        day: 24,
-        img: "",
-        question: "Platzhalter-Rätseltext für den <span>24. Dezember</span>.",
+        day: 12,
+        img: "images/3.png",
+        question: "Zu welchem Kapitel passt das Bild vom <span>12. Dezember</span>?",
         answers: [
-          "Antwort 1 für Tag 24",
-          "Antwort 2 für Tag 24",
-          "Antwort 3 für Tag 24",
-          "Antwort 4 für Tag 24",
-          "Antwort 5 für Tag 24",
-          "Antwort 6 für Tag 24",
-          "Antwort 7 für Tag 24",
-          "Antwort 8 für Tag 24",
-          "Antwort 9 für Tag 24",
-          "Antwort 10 für Tag 24",
-          "Antwort 11 für Tag 24"
+          "Kapitel 1: Wie Alles Begann",
+          "Kapitel 2: Aufbruch ins Abenteuer",
+          "Kapitel 3: Flucht vom Kuschelbär",
+          "Kapitel 4: Herz des Waldes",
+          "Kapitel 5: Eine Borstige Bedrohung",
+          "Kapitel 6: Wer Rastet der Rostet",
+          "Kapitel 7: Trüffeljagd",
+          "Kapitel 8: Markttag",
+          "Kapitel 9: Ausrüstung macht Abenteurer",
+          "Kapitel 10: Herz des Nebels",
+          "Kapitel 11: Vertrauter des Waldes",
+          "Kapitel 12: Dem Wald geht’s gut, alles gut"
+        ],
+        correctIndex: 2
+      },
+      {
+        day: 14,
+        img: "images/1.png",
+        question: "Zu welchem Kapitel passt das Bild vom <span>14. Dezember</span>?",
+        answers: [
+          "Kapitel 1: Wie Alles Begann",
+          "Kapitel 2: Aufbruch ins Abenteuer",
+          "Kapitel 3: Flucht vom Kuschelbär",
+          "Kapitel 4: Herz des Waldes",
+          "Kapitel 5: Eine Borstige Bedrohung",
+          "Kapitel 6: Wer Rastet der Rostet",
+          "Kapitel 7: Trüffeljagd",
+          "Kapitel 8: Markttag",
+          "Kapitel 9: Ausrüstung macht Abenteurer",
+          "Kapitel 10: Herz des Nebels",
+          "Kapitel 11: Vertrauter des Waldes",
+          "Kapitel 12: Dem Wald geht’s gut, alles gut"
         ],
         correctIndex: 0
+      },
+      {
+        day: 16,
+        img: "images/10.png",
+        question: "Zu welchem Kapitel passt das Bild vom <span>16. Dezember</span>?",
+        answers: [
+          "Kapitel 1: Wie Alles Begann",
+          "Kapitel 2: Aufbruch ins Abenteuer",
+          "Kapitel 3: Flucht vom Kuschelbär",
+          "Kapitel 4: Herz des Waldes",
+          "Kapitel 5: Eine Borstige Bedrohung",
+          "Kapitel 6: Wer Rastet der Rostet",
+          "Kapitel 7: Trüffeljagd",
+          "Kapitel 8: Markttag",
+          "Kapitel 9: Ausrüstung macht Abenteurer",
+          "Kapitel 10: Herz des Nebels",
+          "Kapitel 11: Vertrauter des Waldes",
+          "Kapitel 12: Dem Wald geht’s gut, alles gut"
+        ],
+        correctIndex: 9
+      },
+      {
+        day: 18,
+        img: "images/6.png",
+        question: "Zu welchem Kapitel passt das Bild vom <span>18. Dezember</span>?",
+        answers: [
+          "Kapitel 1: Wie Alles Begann",
+          "Kapitel 2: Aufbruch ins Abenteuer",
+          "Kapitel 3: Flucht vom Kuschelbär",
+          "Kapitel 4: Herz des Waldes",
+          "Kapitel 5: Eine Borstige Bedrohung",
+          "Kapitel 6: Wer Rastet der Rostet",
+          "Kapitel 7: Trüffeljagd",
+          "Kapitel 8: Markttag",
+          "Kapitel 9: Ausrüstung macht Abenteurer",
+          "Kapitel 10: Herz des Nebels",
+          "Kapitel 11: Vertrauter des Waldes",
+          "Kapitel 12: Dem Wald geht’s gut, alles gut"
+        ],
+        correctIndex: 5
+      },
+      {
+        day: 20,
+        img: "images/4.png",
+        question: "Zu welchem Kapitel passt das Bild vom <span>20. Dezember</span>?",
+        answers: [
+          "Kapitel 1: Wie Alles Begann",
+          "Kapitel 2: Aufbruch ins Abenteuer",
+          "Kapitel 3: Flucht vom Kuschelbär",
+          "Kapitel 4: Herz des Waldes",
+          "Kapitel 5: Eine Borstige Bedrohung",
+          "Kapitel 6: Wer Rastet der Rostet",
+          "Kapitel 7: Trüffeljagd",
+          "Kapitel 8: Markttag",
+          "Kapitel 9: Ausrüstung macht Abenteurer",
+          "Kapitel 10: Herz des Nebels",
+          "Kapitel 11: Vertrauter des Waldes",
+          "Kapitel 12: Dem Wald geht’s gut, alles gut"
+        ],
+        correctIndex: 3
+      },
+      {
+        day: 22,
+        img: "images/7.png",
+        question: "Zu welchem Kapitel passt das Bild vom <span>22. Dezember</span>?",
+        answers: [
+          "Kapitel 1: Wie Alles Begann",
+          "Kapitel 2: Aufbruch ins Abenteuer",
+          "Kapitel 3: Flucht vom Kuschelbär",
+          "Kapitel 4: Herz des Waldes",
+          "Kapitel 5: Eine Borstige Bedrohung",
+          "Kapitel 6: Wer Rastet der Rostet",
+          "Kapitel 7: Trüffeljagd",
+          "Kapitel 8: Markttag",
+          "Kapitel 9: Ausrüstung macht Abenteurer",
+          "Kapitel 10: Herz des Nebels",
+          "Kapitel 11: Vertrauter des Waldes",
+          "Kapitel 12: Dem Wald geht’s gut, alles gut"
+        ],
+        correctIndex: 6
+      },
+      {
+        day: 24,
+        img: "images/12.png",
+        question: "Zu welchem Kapitel passt das Bild vom <span>24. Dezember</span>?",
+        answers: [
+          "Kapitel 1: Wie Alles Begann",
+          "Kapitel 2: Aufbruch ins Abenteuer",
+          "Kapitel 3: Flucht vom Kuschelbär",
+          "Kapitel 4: Herz des Waldes",
+          "Kapitel 5: Eine Borstige Bedrohung",
+          "Kapitel 6: Wer Rastet der Rostet",
+          "Kapitel 7: Trüffeljagd",
+          "Kapitel 8: Markttag",
+          "Kapitel 9: Ausrüstung macht Abenteurer",
+          "Kapitel 10: Herz des Nebels",
+          "Kapitel 11: Vertrauter des Waldes",
+          "Kapitel 12: Dem Wald geht’s gut, alles gut"
+        ],
+        correctIndex: 11
       }
     ];
 
     // ================================
-    // AB HIER LÄUFT ALLES AUTOMATISCH
+    // STATISTIK (localStorage)
     // ================================
+    const STORAGE_KEY = "adventureStats2025";
+    let currentDetailDay = null;
 
+    function getEmptyStats() {
+      return {
+        totalCorrect: 0,
+        totalWrong: 0,
+        perDay: {} // z.B. { "2": {correct: 3, wrong: 1}, ... }
+      };
+    }
+
+    function loadStats() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return getEmptyStats();
+        const parsed = JSON.parse(raw);
+        // einfache Schutzmaßnahmen
+        if (
+          typeof parsed !== "object" ||
+          parsed === null ||
+          typeof parsed.totalCorrect !== "number" ||
+          typeof parsed.totalWrong !== "number" ||
+          typeof parsed.perDay !== "object"
+        ) {
+          return getEmptyStats();
+        }
+        return parsed;
+      } catch (e) {
+        return getEmptyStats();
+      }
+    }
+
+    function saveStats(stats) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+      } catch (e) {
+        // Wenn localStorage blockiert ist, ignorieren wir es einfach
+      }
+    }
+
+    function updateStatsUI(stats) {
+      const el = document.getElementById("globalStatsText");
+      if (!el) return;
+
+      const totalAnswers = stats.totalCorrect + stats.totalWrong;
+      if (totalAnswers === 0) {
+        el.textContent = "Noch keine Antworten abgegeben.";
+        return;
+      }
+
+      const accuracy = Math.round(
+        (stats.totalCorrect / totalAnswers) * 100
+      );
+
+      el.textContent =
+        stats.totalCorrect +
+        "× richtig, " +
+        stats.totalWrong +
+        "× falsch · Trefferquote: " +
+        accuracy +
+        "%";
+    }
+
+    function updateDetailStats(day, statsOptional) {
+      const stats = statsOptional || loadStats();
+      const el = document.getElementById("dayStats");
+      if (!el) return;
+
+      const key = String(day);
+      const dayStats = stats.perDay[key] || { correct: 0, wrong: 0 };
+      const total = dayStats.correct + dayStats.wrong;
+
+      if (total === 0) {
+        el.textContent = "Dieses Kapitel wurde von dir noch nicht gespielt.";
+      } else {
+        el.textContent =
+          "Dieses Kapitel: " +
+          dayStats.correct +
+          "× richtig, " +
+          dayStats.wrong +
+          "× falsch.";
+      }
+    }
+
+    function recordAnswer(day, isCorrect) {
+      const stats = loadStats();
+      const key = String(day);
+      if (!stats.perDay[key]) {
+        stats.perDay[key] = { correct: 0, wrong: 0 };
+      }
+
+      if (isCorrect) {
+        stats.totalCorrect++;
+        stats.perDay[key].correct++;
+      } else {
+        stats.totalWrong++;
+        stats.perDay[key].wrong++;
+      }
+
+      saveStats(stats);
+      updateStatsUI(stats);
+      updateDetailStats(day, stats);
+    }
+
+    function initResetStatsButton() {
+      const btn = document.getElementById("resetStatsBtn");
+      if (!btn) return;
+
+      btn.addEventListener("click", () => {
+        const ok = confirm(
+          "Möchtest du wirklich deine gesamte Rätsel-Statistik zurücksetzen?"
+        );
+        if (!ok) return;
+
+        const empty = getEmptyStats();
+        saveStats(empty);
+        updateStatsUI(empty);
+        if (currentDetailDay !== null) {
+          updateDetailStats(currentDetailDay, empty);
+        }
+      });
+    }
+
+    // ================================
+    // FREISCHALTUNG & ANSICHTEN
+    // ================================
     let debugUnlockAll = false;
 
     function isPuzzleUnlocked(day) {
@@ -933,7 +1137,7 @@
 
       if (currentMonth !== 11) {
         noticeTextEl.textContent =
-          "Die Rätsel zur Abenteuergeschichte werden ab dem 2. Dezember an jedem geraden Tag freigeschaltet.";
+          "Alle deine Antworten werden gespeichert und du kannst dir in deiner Statistik anschauen wie fit dein Grunther Wissen ist... aber nicht schummeln! ;)";
         return;
       }
 
@@ -975,8 +1179,6 @@
         label.textContent = puzzle.day + ". Dezember";
         const sub = document.createElement("div");
         sub.className = "day-sub";
-        sub.textContent =
-          "Kapitel " + (idx + 1) + " von " + PUZZLES.length;
 
         left.appendChild(label);
         left.appendChild(sub);
@@ -984,7 +1186,7 @@
         const status = document.createElement("div");
         status.className =
           "status-pill " + (unlocked ? "unlocked" : "locked");
-        status.textContent = unlocked ? "Freigeschaltet ✨" : "Noch zu."
+        status.textContent = unlocked ? "✨" : "Noch zu.";
 
         header.appendChild(left);
         header.appendChild(status);
@@ -992,7 +1194,6 @@
 
         const info = document.createElement("div");
         info.className = "day-info";
-        info.textContent = "Bilderbuch-Abenteuer im Wald, mit einem Rätsel am Ende.";
         card.appendChild(info);
 
         const footer = document.createElement("div");
@@ -1001,7 +1202,7 @@
         const hint = document.createElement("div");
         hint.className = "day-info";
         hint.textContent = unlocked
-          ? "Bereit für das Kapitel-Rätsel."
+          ? "Bereit zum Rätseln."
           : "Öffnet sich am " + puzzle.day + ". Dezember.";
 
         const link = document.createElement("a");
@@ -1051,6 +1252,7 @@
       const indexView = document.getElementById("indexView");
       const detailView = document.getElementById("detailView");
 
+      currentDetailDay = null;
       indexView.classList.add("active");
       indexView.classList.remove("hidden");
       detailView.classList.remove("active");
@@ -1070,6 +1272,7 @@
         return;
       }
 
+      currentDetailDay = day;
       const unlocked = isPuzzleUnlocked(day);
 
       indexView.classList.remove("active");
@@ -1106,7 +1309,8 @@
 
       const title = document.createElement("div");
       title.className = "detail-title";
-      title.textContent = "Schau dir das Bild an und finde die richtige Spur.";
+      title.textContent =
+        "Schau dir das Bild an und finde die richtige Spur.";
       detailCard.appendChild(title);
 
       if (!unlocked) {
@@ -1172,6 +1376,12 @@
       feedback.className = "feedback";
       detailCard.appendChild(feedback);
 
+      const dayStatsEl = document.createElement("div");
+      dayStatsEl.className = "day-stats";
+      dayStatsEl.id = "dayStats";
+      detailCard.appendChild(dayStatsEl);
+      updateDetailStats(day);
+
       answerButtons.forEach((button) => {
         button.addEventListener("click", () => {
           const index = Number(button.dataset.index);
@@ -1193,7 +1403,9 @@
         btn.disabled = true;
       });
 
-      if (selectedIndex === puzzle.correctIndex) {
+      const isCorrect = selectedIndex === puzzle.correctIndex;
+
+      if (isCorrect) {
         clickedButton.classList.add("correct");
         feedback.textContent =
           "Richtig! Die Abenteurer folgen der richtigen Spur weiter. 🎉";
@@ -1210,6 +1422,9 @@
         feedback.classList.remove("success");
         feedback.classList.add("error");
       }
+
+      // Statistik aktualisieren
+      recordAnswer(puzzle.day, isCorrect);
     }
 
     function initDebugToggle() {
@@ -1231,6 +1446,12 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      // Statistik initial anzeigen
+      const initialStats = loadStats();
+      updateStatsUI(initialStats);
+      initResetStatsButton();
+
+      // normales Setup
       initDebugToggle();
       updateNotice();
 
