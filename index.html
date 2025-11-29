@@ -663,7 +663,7 @@
       <div>
         <strong>Hinweis:</strong>
         <span id="notice-text">
-          Alle deine Antworten werden gespeichert und du kannst dir in deiner Statistik anschauen wie fit dein Grunther Wissen ist :)
+          Alle deine Antworten werden gespeichert und du kannst dir in deiner Statistik anschauen wie fit dein Grunther Wissen ist... aber nicht schummeln! ;)
         </span>
       </div>
     </div>
@@ -681,12 +681,12 @@
       </button>
     </div>
 
-    <div class="debug-toggle">
+    <!--<div class="debug-toggle">
       <label>
         <input type="checkbox" id="debugToggle" />
         Testmodus: alle Rätsel freischalten
       </label>
-    </div>
+    </div>-->
 
     <!-- Übersicht -->
     <main id="indexView">
@@ -804,7 +804,7 @@
       },
       {
         day: 10,
-        img: "images/1.png",
+        img: "images/11.png",
         question: "Zu welchem Kapitel passt das Bild vom <span>10. Dezember</span>?",
         answers: [
           "Kapitel 1: Wie Alles Begann",
@@ -1428,22 +1428,25 @@
     }
 
     function initDebugToggle() {
-      const toggle = document.getElementById("debugToggle");
-      toggle.addEventListener("change", () => {
-        debugUnlockAll = toggle.checked;
-        updateNotice();
+    const toggle = document.getElementById("debugToggle");
+    // Wenn es kein Debug-Element gibt (Release-Version), einfach nichts tun
+    if (!toggle) return;
 
-        const params = new URLSearchParams(window.location.search);
-        const dayParam = params.get("day");
-        const dayNumber = parseInt(dayParam, 10);
+    toggle.addEventListener("change", () => {
+      debugUnlockAll = toggle.checked;
+      updateNotice();
 
-        if (!isNaN(dayNumber)) {
-          showDetailView(dayNumber);
-        } else {
-          showIndexView();
-        }
-      });
-    }
+      const params = new URLSearchParams(window.location.search);
+      const dayParam = params.get("day");
+      const dayNumber = parseInt(dayParam, 10);
+
+      if (!isNaN(dayNumber)) {
+        showDetailView(dayNumber);
+      } else {
+        showIndexView();
+      }
+    });
+  }
 
     document.addEventListener("DOMContentLoaded", () => {
       // Statistik initial anzeigen
